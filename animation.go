@@ -14,7 +14,7 @@ type Animation struct {
 	Index     int
 	Action    Action
 
-	Speed <-chan time.Time
+	AnimationTimer <-chan time.Time
 }
 
 func (a *Animation) Update(action Action) {
