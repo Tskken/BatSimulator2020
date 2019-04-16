@@ -5,9 +5,7 @@ import (
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"golang.org/x/image/colornames"
-	"image"
 	_ "image/png"
-	"os"
 	"path/filepath"
 	"time"
 )
@@ -32,6 +30,12 @@ type Game struct {
 	DT   float64
 }
 
+
+/*
+	TODO: Config setup
+		- Add load config from file support
+		- Streamline code and comment
+ */
 func NewGame() (*Game, error) {
 	cfg := pixelgl.WindowConfig{
 		Title:  "Bat Simulator 2020???...",
@@ -76,7 +80,6 @@ func NewGame() (*Game, error) {
 		Camera: Camera{
 			Position: win.Bounds().Center(),
 			Bounds:   win.Bounds(),
-			Speed:    500.0,
 		},
 		Animation: Animation{
 			SpriteMap: map[Action][]*pixel.Sprite{
@@ -114,26 +117,6 @@ func NewGame() (*Game, error) {
 	}, nil
 }
 
-func LoadPicture(path string) (pixel.Picture, error) {
-	file, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	defer func() {
-		err := file.Close()
-		if err != nil {
-			panic(err)
-		}
-	}()
-
-	img, _, err := image.Decode(file)
-	if err != nil {
-		return nil, err
-	}
-
-	return pixel.PictureDataFromImage(img), nil
-}
-
 func (g *Game) MainGameLoop() {
 	for !g.Window.Closed() {
 		g.UpdateDT()
@@ -148,15 +131,15 @@ func (g *Game) MainGameLoop() {
 		default:
 		}
 
-		// Set camera position
-		g.Camera.Matrix = pixel.IM.Moved(g.Window.Bounds().Center().Sub(g.Camera.Position))
+		g.Camera.UpdateCamera(g.Bat.Position, g.DT)
+
 		g.Window.SetMatrix(g.Camera.Matrix)
 
 		// Clear window
 		g.Window.Clear(colornames.Skyblue)
 
 		// Draw bat on screen
-		g.Bat.Sprite.Draw(g.Window, pixel.IM.Scaled(pixel.ZV, 4).Moved(g.Bat.Position))
+		g.Bat.Sprite.Draw(g.Window, pixel.IM.Scaled(pixel.ZV, 2).Moved(g.Bat.Position))
 
 		// Update window
 		g.Window.Update()
