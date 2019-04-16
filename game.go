@@ -8,6 +8,7 @@ import (
 	"image"
 	_ "image/png"
 	"os"
+	"path/filepath"
 	"time"
 )
 
@@ -43,8 +44,13 @@ func NewGame() (*Game, error) {
 		return nil, err
 	}
 
+	path, err := filepath.Abs("./assets/sprites/bat-sprite.png")
+	if err != nil {
+		panic(err)
+	}
+
 	// Load sprite sheet from file
-	spritesheet, err := LoadPicture("./assets/sprites/bat-sprite.png")
+	spritesheet, err := LoadPicture(path)
 	if err != nil {
 		panic(err)
 	}
