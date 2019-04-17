@@ -6,7 +6,6 @@ import (
 	"github.com/faiface/pixel/pixelgl"
 	"golang.org/x/image/colornames"
 	_ "image/png"
-	"path/filepath"
 	"time"
 )
 
@@ -23,6 +22,9 @@ type Game struct {
 	Camera    Camera
 	Animation Animation
 
+	Objects ObjectCollection
+	World World
+
 	Frames   int
 	FPSTimer <-chan time.Time
 
@@ -30,12 +32,11 @@ type Game struct {
 	DT   float64
 }
 
-
 /*
 	TODO: Config setup
 		- Add load config from file support
 		- Streamline code and comment
- */
+*/
 func NewGame() (*Game, error) {
 	cfg := pixelgl.WindowConfig{
 		Title:  "Bat Simulator 2020???...",
@@ -48,70 +49,29 @@ func NewGame() (*Game, error) {
 		return nil, err
 	}
 
-	path, err := filepath.Abs("./assets/sprites/bat-sprite.png")
+	pic, err := LoadPicture("./assets/textures/woodTexture.png")
 	if err != nil {
 		panic(err)
-	}
-
-	// Load sprite sheet from file
-	spritesheet, err := LoadPicture(path)
-	if err != nil {
-		panic(err)
-	}
-
-	var sprites []*pixel.Sprite
-
-	// Save sprites from sprite sheet to array
-	for x := spritesheet.Bounds().Min.X; x < spritesheet.Bounds().Max.X; x += 32 {
-		for y := spritesheet.Bounds().Min.Y; y < spritesheet.Bounds().Max.Y; y += 32 {
-			sprites = append(sprites, pixel.NewSprite(spritesheet, pixel.R(x, y, x+32, y+32)))
-		}
 	}
 
 	return &Game{
 		Window: win,
 		Cfg:    cfg,
-		Bat: Bat{
-			Sprite:   sprites[0],
-			HitBox:   pixel.R(0, 0, 32, 32),
-			Position: win.Bounds().Center(),
-			Speed:    500.0,
-		},
+		Bat: NewBat(win.Bounds().Center()),
 		Camera: Camera{
 			Position: win.Bounds().Center(),
 			Bounds:   win.Bounds(),
 		},
-		Animation: Animation{
-			SpriteMap: map[Action][]*pixel.Sprite{
-				Up: {
-					sprites[5],
-					sprites[9],
-					sprites[13],
-				},
-				Down: {
-					sprites[7],
-					sprites[11],
-					sprites[15],
-				},
-				Left: {
-					sprites[4],
-					sprites[8],
-					sprites[12],
-				},
-				Right: {
-					sprites[6],
-					sprites[10],
-					sprites[14],
-				},
-				Idle: {
-					sprites[7],
-					sprites[11],
-					sprites[15],
-				},
+		Animation: NewAnimation(),
+		Objects:map[Collideable][]Object{
+			CollideTrue: {
+				NewObject(32, 32, pixel.V(0, 0), pixel.NewSprite(pic, pixel.R(0,0,32,32))),
 			},
-			Action:         Idle,
-			AnimationTimer: time.Tick(AnimationTime),
+			CollideFalse: {
+				NewObject(32,32, pixel.V(32,32), pixel.NewSprite(pic, pixel.R(0,0,32,32))),
+			},
 		},
+		World:NewWorld(),
 		FPSTimer: time.Tick(time.Second),
 		Last:     time.Now(),
 	}, nil
@@ -129,6 +89,9 @@ func (g *Game) MainGameLoop() {
 		case <-g.Animation.AnimationTimer:
 			g.Bat.Sprite = g.Animation.SpriteMap[g.Animation.Action][g.Animation.Index]
 		default:
+			if g.Bat.Sprite == nil {
+				g.Bat.Sprite = g.Animation.SpriteMap[Idle][0]
+			}
 		}
 
 		g.Camera.UpdateCamera(g.Bat.Position, g.DT)
@@ -136,10 +99,11 @@ func (g *Game) MainGameLoop() {
 		g.Window.SetMatrix(g.Camera.Matrix)
 
 		// Clear window
-		g.Window.Clear(colornames.Skyblue)
+		g.Window.Clear(colornames.Black)
 
-		// Draw bat on screen
-		g.Bat.Sprite.Draw(g.Window, pixel.IM.Scaled(pixel.ZV, 2).Moved(g.Bat.Position))
+		g.Bat.Draw(g.Window)
+
+		g.Objects.Draw(g.Window)
 
 		// Update window
 		g.Window.Update()
