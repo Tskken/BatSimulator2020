@@ -4,14 +4,7 @@ import (
 	"github.com/faiface/pixel"
 )
 
-type Collideable uint8
-
-type ObjectCollection map[Collideable][]Object
-
-const (
-	CollideTrue Collideable = iota
-	CollideFalse
-)
+type ObjectCollection map[bool][]Object
 
 type Object struct {
 	Position   pixel.Vec
@@ -22,19 +15,19 @@ type Object struct {
 func NewObject(w, h float64, pos pixel.Vec, sprite *pixel.Sprite) Object {
 	return Object{
 		Position:pos,
-		Bounds:pixel.R(0,0, w, h).Moved(pixel.V(w/2,h/2)),
+		Bounds:pixel.R(0,0, w, h).Moved(pos.Sub(pixel.V(w/2, h/2))),
 		Sprite:sprite,
 	}
 }
 
-func (o *Object) Draw(target pixel.Target) {
-	o.Sprite.Draw(target, pixel.IM.Moved(o.Position))
+func (o *Object) Draw(target pixel.Target, scale float64) {
+	o.Sprite.Draw(target, pixel.IM.Scaled(pixel.ZV, scale).Moved(o.Position.Scaled(scale)))
 }
 
-func (obj ObjectCollection) Draw(target pixel.Target) {
+func (obj ObjectCollection) Draw(target pixel.Target, scale float64) {
 	for _, obs := range obj {
 		for _, o := range obs {
-			o.Draw(target)
+			o.Draw(target, scale)
 		}
 	}
 }

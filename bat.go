@@ -30,7 +30,6 @@ func NewBat(winCenter pixel.Vec) Bat {
 }
 
 func (b *Bat) Moved(vec pixel.Vec, obj []Object) {
-	newPos := b.Position.Add(vec)
 	newBox := b.HitBox.Moved(vec)
 
 	for _, o := range obj {
@@ -39,7 +38,7 @@ func (b *Bat) Moved(vec pixel.Vec, obj []Object) {
 		}
 	}
 
-	b.Position = newPos
+	b.Position = b.Position.Add(vec)
 	b.HitBox = newBox
 }
 

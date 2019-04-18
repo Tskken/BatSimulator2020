@@ -49,10 +49,10 @@ func NewGame() (*Game, error) {
 		return nil, err
 	}
 
-	pic, err := LoadPicture("./assets/textures/woodTexture.png")
-	if err != nil {
-		panic(err)
-	}
+	//pic, err := LoadPicture("./assets/textures/woodTexture.png")
+	//if err != nil {
+	//	panic(err)
+	//}
 
 	return &Game{
 		Window: win,
@@ -63,12 +63,12 @@ func NewGame() (*Game, error) {
 			Bounds:   win.Bounds(),
 		},
 		Animation: NewAnimation(),
-		Objects:map[Collideable][]Object{
-			CollideTrue: {
-				NewObject(32, 32, pixel.V(0, 0), pixel.NewSprite(pic, pixel.R(0,0,32,32))),
+		Objects:map[bool][]Object{
+			true: {
+				//NewObject(32, 32, pixel.V(0, 0), pixel.NewSprite(pic, pixel.R(0,0,32,32))),
 			},
-			CollideFalse: {
-				NewObject(32,32, pixel.V(32,32), pixel.NewSprite(pic, pixel.R(0,0,32,32))),
+			false: {
+				//NewObject(32,32, pixel.V(32,32), pixel.NewSprite(pic, pixel.R(0,0,32,32))),
 			},
 		},
 		World:NewWorld(),
@@ -94,16 +94,51 @@ func (g *Game) MainGameLoop() {
 			}
 		}
 
+		// Clear window
+		g.Window.Clear(colornames.Gray)
+
 		g.Camera.UpdateCamera(g.Bat.Position, g.DT)
 
 		g.Window.SetMatrix(g.Camera.Matrix)
 
-		// Clear window
-		g.Window.Clear(colornames.Black)
+		g.World.Draw(g.Window)
 
 		g.Bat.Draw(g.Window)
 
-		g.Objects.Draw(g.Window)
+		g.Objects.Draw(g.Window, Scale)
+
+		//imd := imdraw.New(nil)
+		//imd.Color = pixel.RGB(0, 1, 0)
+		//imd.Push(g.Objects[CollideTrue][0][0].Sprite.Frame().Min.Scaled(WorldScale))
+		//imd.Push(g.Objects[CollideTrue][0][0].Sprite.Frame().Min.Scaled(WorldScale))
+		//imd.Push(pixel.V(g.Objects[CollideTrue][0][0].Sprite.Frame().Min.Scaled(WorldScale).X, g.Objects[CollideTrue][0][0].Sprite.Frame().Max.Scaled(WorldScale).Y))
+		//imd.Push(pixel.V(g.Objects[CollideTrue][0][0].Sprite.Frame().Max.Scaled(WorldScale).X, g.Objects[CollideTrue][0][0].Sprite.Frame().Min.Scaled(WorldScale).Y))
+		//imd.Rectangle(0)
+		//
+		//imd.Draw(g.Window)
+
+		//imd := imdraw.New(nil)
+		//
+		//var i int
+		//var j int
+		//
+		//for i = 0; i < int(SpriteWidthCount); i++ {
+		//	if i % 2 != 0 {
+		//		j = 1
+		//	} else {
+		//		j = 0
+		//	}
+		//	for;j < int(SpriteHeightCount); j+=2{
+		//		imd.Color = pixel.RGBA{G:1,A:0.1}
+		//		imd.Push(g.World.Objects[CollideFalse][i][j].Bounds.Min.Scaled(WorldScale))
+		//		imd.Push(g.World.Objects[CollideFalse][i][j].Bounds.Min.Scaled(WorldScale))
+		//		imd.Push(pixel.V(g.World.Objects[CollideFalse][i][j].Bounds.Min.Scaled(WorldScale).X, g.World.Objects[CollideFalse][i][j].Bounds.Max.Scaled(WorldScale).Y))
+		//		imd.Push(pixel.V(g.World.Objects[CollideFalse][i][j].Bounds.Max.Scaled(WorldScale).X, g.World.Objects[CollideFalse][i][j].Bounds.Min.Scaled(WorldScale).Y))
+		//		imd.Rectangle(0)
+		//	}
+		//}
+		//
+		//imd.Draw(g.Window)
 
 		// Update window
 		g.Window.Update()

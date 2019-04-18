@@ -2,11 +2,18 @@ package main
 
 import (
 	"github.com/faiface/pixel"
+	"log"
 	"path/filepath"
 )
 
 const (
 	TileSize = 16
+	WorldScale = 4
+)
+
+var (
+	SpriteHeightCount float64 = 0
+	SpriteWidthCount float64 = 0
 )
 
 type World struct {
@@ -25,6 +32,12 @@ func NewWorld() World {
 		panic(err)
 	}
 
+	SpriteHeightCount = spritesheet.Bounds().Max.Y / float64(TileSize)
+	SpriteWidthCount = spritesheet.Bounds().Max.X / float64(TileSize)
+
+	log.Println(SpriteHeightCount)
+	log.Println(SpriteWidthCount)
+
 	var sprites []*pixel.Sprite
 
 	// Save sprites from sprite sheet to array
@@ -34,16 +47,28 @@ func NewWorld() World {
 		}
 	}
 
-	return World{
-		Objects: map[Collideable][]Object{
-			CollideTrue:{
-				{
-					Position:pixel.V(0,0),
-					Bounds:pixel.R(0,0,0,0),
-					Sprite:nil,
-				},
-			},
-		},
+	var objects []Object
 
+	lastX := 0.0
+
+	for _, sprite := range sprites {
+			objects = append(objects, NewObject(sprite.Frame().W(), sprite.Frame().H(), pixel.V(lastX, 0), sprite))
+			lastX += sprite.Frame().W()+25
 	}
+
+	return World{
+		Objects: map[bool][]Object{
+			true:{},
+			false:objects,
+		},
+		Batch:pixel.NewBatch(&pixel.TrianglesData{}, spritesheet),
+	}
+}
+
+func (w *World) Draw(target pixel.Target) {
+	w.Batch.Clear()
+
+	w.Objects.Draw(w.Batch, WorldScale)
+
+	w.Batch.Draw(target)
 }
