@@ -8,7 +8,7 @@ import (
 
 const (
 	TileSize = 16
-	WorldScale = 4
+	WorldScale = 2
 )
 
 var (
@@ -22,7 +22,7 @@ type World struct {
 }
 
 func NewWorld() World {
-	path, err := filepath.Abs("./assets/textures/cave.png")
+	path, err := filepath.Abs("./assets/maps/cave_map_v1.png")
 	if err != nil {
 		panic(err)
 	}
@@ -49,11 +49,8 @@ func NewWorld() World {
 
 	var objects []Object
 
-	lastX := 0.0
-
 	for _, sprite := range sprites {
-			objects = append(objects, NewObject(sprite.Frame().W(), sprite.Frame().H(), pixel.V(lastX, 0), sprite))
-			lastX += sprite.Frame().W()+25
+			objects = append(objects, NewObject(sprite.Frame().W(), sprite.Frame().H(), sprite.Frame().Center(), sprite))
 	}
 
 	return World{

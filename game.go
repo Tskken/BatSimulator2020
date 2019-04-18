@@ -26,6 +26,8 @@ type Game struct {
 	Objects ObjectCollection
 	World World
 
+	tMap*tilepix.Map
+
 	Frames   int
 	FPSTimer <-chan time.Time
 
@@ -55,6 +57,16 @@ func NewGame() (*Game, error) {
 	//	panic(err)
 	//}
 
+	//path, err := filepath.Abs("./assets/maps/cave_map_v1.tmx")
+	//if err != nil {
+	//	panic(err)
+	//}
+	//
+	//m, err := tilepix.ReadFile(path)
+	//if err != nil {
+	//	panic(err)
+	//}
+
 	return &Game{
 		Window: win,
 		Cfg:    cfg,
@@ -72,18 +84,14 @@ func NewGame() (*Game, error) {
 				//NewObject(32,32, pixel.V(32,32), pixel.NewSprite(pic, pixel.R(0,0,32,32))),
 			},
 		},
-		//World:NewWorld(),
+		//tMap:m,
+		World:NewWorld(),
 		FPSTimer: time.Tick(time.Second),
 		Last:     time.Now(),
 	}, nil
 }
 
 func (g *Game) MainGameLoop() {
-	m, err := tilepix.ReadFile("./assets/maps/cave_map_v1.tmx")
-	if err != nil {
-		panic(err)
-	}
-
 	for !g.Window.Closed() {
 		g.UpdateDT()
 
@@ -107,14 +115,14 @@ func (g *Game) MainGameLoop() {
 
 		g.Window.SetMatrix(g.Camera.Matrix)
 
-		//g.World.Draw(g.Window)
+		g.World.Draw(g.Window)
 
 		//g.Objects.Draw(g.Window, Scale)
 
-		err = m.DrawAll(g.Window, colornames.Black, pixel.IM)
-		if err != nil {
-			panic(err)
-		}
+		//err := g.tMap.DrawAll(g.Window, colornames.Black, pixel.IM)
+		//if err != nil {
+		//	panic(err)
+		//}
 
 		g.Bat.Draw(g.Window)
 
