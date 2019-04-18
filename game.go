@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/bcvery1/tilepix"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"golang.org/x/image/colornames"
@@ -71,13 +72,18 @@ func NewGame() (*Game, error) {
 				//NewObject(32,32, pixel.V(32,32), pixel.NewSprite(pic, pixel.R(0,0,32,32))),
 			},
 		},
-		World:NewWorld(),
+		//World:NewWorld(),
 		FPSTimer: time.Tick(time.Second),
 		Last:     time.Now(),
 	}, nil
 }
 
 func (g *Game) MainGameLoop() {
+	m, err := tilepix.ReadFile("./assets/maps/cave_map_v1.tmx")
+	if err != nil {
+		panic(err)
+	}
+
 	for !g.Window.Closed() {
 		g.UpdateDT()
 
@@ -101,44 +107,16 @@ func (g *Game) MainGameLoop() {
 
 		g.Window.SetMatrix(g.Camera.Matrix)
 
-		g.World.Draw(g.Window)
+		//g.World.Draw(g.Window)
+
+		//g.Objects.Draw(g.Window, Scale)
+
+		err = m.DrawAll(g.Window, colornames.Black, pixel.IM)
+		if err != nil {
+			panic(err)
+		}
 
 		g.Bat.Draw(g.Window)
-
-		g.Objects.Draw(g.Window, Scale)
-
-		//imd := imdraw.New(nil)
-		//imd.Color = pixel.RGB(0, 1, 0)
-		//imd.Push(g.Objects[CollideTrue][0][0].Sprite.Frame().Min.Scaled(WorldScale))
-		//imd.Push(g.Objects[CollideTrue][0][0].Sprite.Frame().Min.Scaled(WorldScale))
-		//imd.Push(pixel.V(g.Objects[CollideTrue][0][0].Sprite.Frame().Min.Scaled(WorldScale).X, g.Objects[CollideTrue][0][0].Sprite.Frame().Max.Scaled(WorldScale).Y))
-		//imd.Push(pixel.V(g.Objects[CollideTrue][0][0].Sprite.Frame().Max.Scaled(WorldScale).X, g.Objects[CollideTrue][0][0].Sprite.Frame().Min.Scaled(WorldScale).Y))
-		//imd.Rectangle(0)
-		//
-		//imd.Draw(g.Window)
-
-		//imd := imdraw.New(nil)
-		//
-		//var i int
-		//var j int
-		//
-		//for i = 0; i < int(SpriteWidthCount); i++ {
-		//	if i % 2 != 0 {
-		//		j = 1
-		//	} else {
-		//		j = 0
-		//	}
-		//	for;j < int(SpriteHeightCount); j+=2{
-		//		imd.Color = pixel.RGBA{G:1,A:0.1}
-		//		imd.Push(g.World.Objects[CollideFalse][i][j].Bounds.Min.Scaled(WorldScale))
-		//		imd.Push(g.World.Objects[CollideFalse][i][j].Bounds.Min.Scaled(WorldScale))
-		//		imd.Push(pixel.V(g.World.Objects[CollideFalse][i][j].Bounds.Min.Scaled(WorldScale).X, g.World.Objects[CollideFalse][i][j].Bounds.Max.Scaled(WorldScale).Y))
-		//		imd.Push(pixel.V(g.World.Objects[CollideFalse][i][j].Bounds.Max.Scaled(WorldScale).X, g.World.Objects[CollideFalse][i][j].Bounds.Min.Scaled(WorldScale).Y))
-		//		imd.Rectangle(0)
-		//	}
-		//}
-		//
-		//imd.Draw(g.Window)
 
 		// Update window
 		g.Window.Update()
