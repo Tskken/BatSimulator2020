@@ -32,11 +32,11 @@ func NewBat(winCenter pixel.Vec) Bat {
 func (b *Bat) Moved(vec pixel.Vec, obj []Object) {
 	newBox := b.HitBox.Moved(vec)
 
-	for _, o := range obj {
-		if o.Bounds.Intersect(newBox) != pixel.R(0,0,0,0){
-			return
-		}
-	}
+	//for _, o := range obj {
+	//	if o.Bounds.Intersect(newBox) != pixel.R(0, 0, 0, 0) {
+	//		return
+	//	}
+	//}
 
 	b.Position = b.Position.Add(vec)
 	b.HitBox = newBox

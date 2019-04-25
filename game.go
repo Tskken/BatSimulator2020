@@ -1,12 +1,13 @@
 package main
 
 import (
+	"BatSimulator2020/mapdecoder"
 	"fmt"
-	"github.com/bcvery1/tilepix"
 	"github.com/faiface/pixel"
 	"github.com/faiface/pixel/pixelgl"
 	"golang.org/x/image/colornames"
 	_ "image/png"
+	"path/filepath"
 	"time"
 )
 
@@ -22,11 +23,7 @@ type Game struct {
 	Bat       Bat
 	Camera    Camera
 	Animation Animation
-
-	Objects ObjectCollection
-	World World
-
-	tMap*tilepix.Map
+	World     World
 
 	Frames   int
 	FPSTimer <-chan time.Time
@@ -52,42 +49,38 @@ func NewGame() (*Game, error) {
 		return nil, err
 	}
 
-	//pic, err := LoadPicture("./assets/textures/woodTexture.png")
-	//if err != nil {
-	//	panic(err)
-	//}
+	mapPath, err := filepath.Abs("./assets/maps/cave_map_v1.json")
+	if err != nil {
+		panic(err)
+	}
 
-	//path, err := filepath.Abs("./assets/maps/cave_map_v1.tmx")
-	//if err != nil {
-	//	panic(err)
-	//}
-	//
-	//m, err := tilepix.ReadFile(path)
-	//if err != nil {
-	//	panic(err)
-	//}
+	rootPath, err := filepath.Abs("../BatSimulator2020/assets/tilesets")
+	if err != nil {
+		panic(err)
+	}
+
+	m, err := mapdecoder.LoadMap(rootPath, mapPath)
+	if err != nil {
+		panic(err)
+	}
+
+	w, err := LoadMap(m)
+	if err != nil {
+		panic(err)
+	}
 
 	return &Game{
 		Window: win,
 		Cfg:    cfg,
-		Bat: NewBat(win.Bounds().Center()),
+		Bat:    NewBat(win.Bounds().Center()),
 		Camera: Camera{
 			Position: win.Bounds().Center(),
 			Bounds:   win.Bounds(),
 		},
 		Animation: NewAnimation(),
-		Objects:map[bool][]Object{
-			true: {
-				//NewObject(32, 32, pixel.V(0, 0), pixel.NewSprite(pic, pixel.R(0,0,32,32))),
-			},
-			false: {
-				//NewObject(32,32, pixel.V(32,32), pixel.NewSprite(pic, pixel.R(0,0,32,32))),
-			},
-		},
-		//tMap:m,
-		World:NewWorld(),
-		FPSTimer: time.Tick(time.Second),
-		Last:     time.Now(),
+		World:     *w,
+		FPSTimer:  time.Tick(time.Second),
+		Last:      time.Now(),
 	}, nil
 }
 
@@ -116,13 +109,6 @@ func (g *Game) MainGameLoop() {
 		g.Window.SetMatrix(g.Camera.Matrix)
 
 		g.World.Draw(g.Window)
-
-		//g.Objects.Draw(g.Window, Scale)
-
-		//err := g.tMap.DrawAll(g.Window, colornames.Black, pixel.IM)
-		//if err != nil {
-		//	panic(err)
-		//}
 
 		g.Bat.Draw(g.Window)
 

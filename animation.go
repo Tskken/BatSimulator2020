@@ -8,9 +8,9 @@ import (
 
 const (
 	AnimationTime = time.Second / 8
-	SpriteWidth = 32
-	SpriteHeight = 32
-	Scale = 2
+	SpriteWidth   = 32
+	SpriteHeight  = 32
+	Scale         = 2
 )
 
 type Animation struct {
