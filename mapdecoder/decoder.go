@@ -28,6 +28,7 @@ func LoadMap(rootPath, mapPath string) (*Map, error) {
 	}
 
 	for _, tileSet := range m.TileSets {
+
 		tileSet.Image = filepath.Join(rootPath, tileSet.Image)
 	}
 

@@ -1,29 +1,35 @@
 package main
 
-//type ObjectCollection map[bool][]Object
-//
-//type Object struct {
-//	Position pixel.Vec
-//	Bounds   pixel.Rect
-//	Sprite   *pixel.Sprite
-//}
-//
-//func NewObject(w, h float64, pos pixel.Vec, sprite *pixel.Sprite) Object {
-//	return Object{
-//		Position: pos,
-//		Bounds:   pixel.R(0, 0, w, h).Moved(pos.Sub(pixel.V(w/2, h/2))),
-//		Sprite:   sprite,
-//	}
-//}
-//
-//func (o *Object) Draw(target pixel.Target, scale float64) {
-//	o.Sprite.Draw(target, pixel.IM.Scaled(pixel.ZV, scale).Moved(o.Position.Scaled(scale)))
-//}
-//
-//func (obj ObjectCollection) Draw(target pixel.Target, scale float64) {
-//	for _, obs := range obj {
-//		for _, o := range obs {
-//			o.Draw(target, scale)
-//		}
-//	}
-//}
+import (
+	"BatSimulator2020/mapdecoder"
+	"fmt"
+	"github.com/dhconnelly/rtreego"
+	"github.com/faiface/pixel"
+)
+
+type Object struct {
+	Vec    pixel.Vec
+	Rect   pixel.Rect
+	Sprite *pixel.Sprite
+}
+
+func (w *World) NewObject(obj *mapdecoder.Object) *Object {
+	rec := pixel.R(obj.X*WorldScale, (-obj.Y-obj.Height)*WorldScale, (obj.X+obj.Width)*WorldScale, -obj.Y*WorldScale)
+	rec = rec.Moved(pixel.V(-TileSize, float64(w.Height)*TileSize*WorldScale-TileSize))
+	return &Object{
+		Vec:  rec.Min,
+		Rect: rec,
+	}
+}
+
+func (o *Object) Bounds() *rtreego.Rect {
+	return ToRect(o.Rect.Moved(o.Vec))
+}
+
+func (o *Object) Intersects(rct pixel.Rect) bool {
+	return len(RTree.SearchIntersect(ToRect(rct))) >= 1
+}
+
+func (o *Object) String() string {
+	return fmt.Sprintf("Vec{%v}, Rect{%v}", o.Vec, o.Rect)
+}

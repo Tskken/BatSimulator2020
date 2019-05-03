@@ -18,10 +18,10 @@ type Animation struct {
 	Index     int
 	Action    Action
 
-	AnimationTimer <-chan time.Time
+	AnimationTimer time.Time
 }
 
-func NewAnimation() Animation {
+func NewAnimation() *Animation {
 	path, err := filepath.Abs("./assets/sprites/bat-sprite.png")
 	if err != nil {
 		panic(err)
@@ -42,7 +42,7 @@ func NewAnimation() Animation {
 		}
 	}
 
-	return Animation{
+	return &Animation{
 		SpriteMap: map[Action][]*pixel.Sprite{
 			Up: {
 				sprites[5],
@@ -71,9 +71,17 @@ func NewAnimation() Animation {
 			},
 		},
 		Action:         Idle,
-		AnimationTimer: time.Tick(AnimationTime),
+		AnimationTimer: time.Now(),
 	}
 }
+
+//func (a *Animation) Check() {
+//	// Animation update counter
+//	if time.Since(a.AnimationTimer) >= AnimationTime {
+//		g.Bat.Sprite = g.Animation.SpriteMap[g.Animation.Action][g.Animation.Index]
+//		g.Animation.AnimationTimer = time.Now()
+//	}
+//}
 
 func (a *Animation) Update(action Action) {
 	if a.Action == action {

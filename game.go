@@ -1,13 +1,12 @@
 package main
 
 import (
-	"BatSimulator2020/mapdecoder"
 	"fmt"
 	"github.com/faiface/pixel"
+	"github.com/faiface/pixel/imdraw"
 	"github.com/faiface/pixel/pixelgl"
 	"golang.org/x/image/colornames"
 	_ "image/png"
-	"path/filepath"
 	"time"
 )
 
@@ -18,16 +17,23 @@ const (
 
 type Game struct {
 	Window *pixelgl.Window
-	Cfg    pixelgl.WindowConfig
+	Cfg    *pixelgl.WindowConfig
 
-	Bat       Bat
-	Camera    Camera
-	Animation Animation
-	World     World
+	Bat       *Bat
+	Camera    *Camera
+	Animation *Animation
+	World     *World
 
+	FPSTimer  *FPSTimer
+	DeltaTime *DeltaTime
+}
+
+type FPSTimer struct {
 	Frames   int
 	FPSTimer <-chan time.Time
+}
 
+type DeltaTime struct {
 	Last time.Time
 	DT   float64
 }
@@ -49,84 +55,84 @@ func NewGame() (*Game, error) {
 		return nil, err
 	}
 
-	mapPath, err := filepath.Abs("./assets/maps/cave_map_v1.json")
-	if err != nil {
-		panic(err)
-	}
-
-	rootPath, err := filepath.Abs("../BatSimulator2020/assets/tilesets")
-	if err != nil {
-		panic(err)
-	}
-
-	m, err := mapdecoder.LoadMap(rootPath, mapPath)
-	if err != nil {
-		panic(err)
-	}
-
-	w, err := LoadMap(m)
-	if err != nil {
-		panic(err)
-	}
-
 	return &Game{
 		Window: win,
-		Cfg:    cfg,
+		Cfg:    &cfg,
 		Bat:    NewBat(win.Bounds().Center()),
-		Camera: Camera{
+		Camera: &Camera{
 			Position: win.Bounds().Center(),
 			Bounds:   win.Bounds(),
 		},
 		Animation: NewAnimation(),
-		World:     *w,
-		FPSTimer:  time.Tick(time.Second),
-		Last:      time.Now(),
+		World:     LoadMap(),
+		FPSTimer: &FPSTimer{
+			Frames:   0,
+			FPSTimer: time.Tick(time.Second),
+		},
+		DeltaTime: &DeltaTime{
+			Last: time.Now(),
+		},
 	}, nil
 }
 
 func (g *Game) MainGameLoop() {
 	for !g.Window.Closed() {
-		g.UpdateDT()
+		g.DeltaTime.UpdateDT()
 
 		// Handle possible actions
 		g.ActionHandler()
 
 		// Animation update counter
-		select {
-		case <-g.Animation.AnimationTimer:
+		if time.Since(g.Animation.AnimationTimer) >= AnimationTime || g.Bat.Sprite == nil {
 			g.Bat.Sprite = g.Animation.SpriteMap[g.Animation.Action][g.Animation.Index]
-		default:
-			if g.Bat.Sprite == nil {
-				g.Bat.Sprite = g.Animation.SpriteMap[Idle][0]
-			}
+			g.Animation.AnimationTimer = time.Now()
 		}
 
-		// Clear window
-		g.Window.Clear(colornames.Gray)
+		g.Draw()
 
-		g.Camera.UpdateCamera(g.Bat.Position, g.DT)
-
-		g.Window.SetMatrix(g.Camera.Matrix)
-
-		g.World.Draw(g.Window)
-
-		g.Bat.Draw(g.Window)
-
-		// Update window
-		g.Window.Update()
-
-		// Get FPS counter
-		select {
-		case <-g.FPSTimer:
-			g.Window.SetTitle(fmt.Sprintf("%s | FPS: %d", g.Cfg.Title, g.Frames))
-			g.Frames = 0
-		default:
-			g.Frames++
-		}
+		g.FPSTimer.FPSCounter(g)
 	}
 }
 
-func (g *Game) UpdateDT() {
-	g.DT = time.Since(g.Last).Seconds()
-	g.Last = time.Now()
+func (f *FPSTimer) FPSCounter(g *Game) {
+	// Get FPS counter
+	select {
+	case <-f.FPSTimer:
+		g.Window.SetTitle(fmt.Sprintf("%s | FPS: %d", g.Cfg.Title, f.Frames))
+		f.Frames = 0
+	default:
+		f.Frames++
+	}
+}
+
+func (g *Game) Draw() {
+	g.Camera.UpdateCamera(g.Bat.Position, g.DeltaTime.DT)
+	g.Window.SetMatrix(g.Camera.Matrix)
+
+	imd := imdraw.New(nil)
+	for _, obj := range g.World.Layers[1].Objects {
+		imd.Color = pixel.RGB(0, 1, 0)
+		imd.Push(obj.Rect.Min, obj.Rect.Max)
+		imd.Rectangle(0)
+	}
+
+	imd.Color = pixel.RGB(1, 0, 0)
+	imd.Push(g.Bat.HitBox.Min, g.Bat.HitBox.Max)
+	imd.Rectangle(0)
+
+	// Clear window
+	g.Window.Clear(colornames.Black)
+	g.World.Draw(g.Window)
+
+	imd.Draw(g.Window)
+
+	g.Bat.Draw(g.Window)
+
+	// Update window
+	g.Window.Update()
+}
+
+func (d *DeltaTime) UpdateDT() {
+	d.DT = time.Since(d.Last).Seconds()
+	d.Last = time.Now()
 }
