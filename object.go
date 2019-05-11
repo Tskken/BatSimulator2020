@@ -3,7 +3,6 @@ package main
 import (
 	"BatSimulator2020/mapdecoder"
 	"fmt"
-	"github.com/dhconnelly/rtreego"
 	"github.com/faiface/pixel"
 )
 
@@ -11,6 +10,23 @@ type Object struct {
 	Vec    pixel.Vec
 	Rect   pixel.Rect
 	Sprite *pixel.Sprite
+	Action func()
+}
+
+func (o *Object) Center() (x, y float64) {
+	return o.Rect.Center().X, o.Rect.Center().Y
+}
+
+func (o *Object) Bounds() (minX, minY, maxX, maxY float64) {
+	return o.Rect.Min.X, o.Rect.Min.Y, o.Rect.Max.X, o.Rect.Max.Y
+}
+
+func (o *Object) W() float64 {
+	return o.Rect.W()
+}
+
+func (o *Object) H() float64 {
+	return o.Rect.H()
 }
 
 func (w *World) NewObject(obj *mapdecoder.Object) *Object {
@@ -20,14 +36,6 @@ func (w *World) NewObject(obj *mapdecoder.Object) *Object {
 		Vec:  rec.Min,
 		Rect: rec,
 	}
-}
-
-func (o *Object) Bounds() *rtreego.Rect {
-	return ToRect(o.Rect.Moved(o.Vec))
-}
-
-func (o *Object) Intersects(rct pixel.Rect) bool {
-	return len(RTree.SearchIntersect(ToRect(rct))) >= 1
 }
 
 func (o *Object) String() string {

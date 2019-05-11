@@ -55,11 +55,7 @@ func (w *World) NewLayer(m *mapdecoder.Map, index int) *Layer {
 			for i, obj := range m.Layers[index].Objects {
 				o := w.NewObject(obj)
 				l.Objects[i] = o
-				if RTree == nil {
-					NewRTree(o)
-				} else {
-					AddToRTree(o)
-				}
+				QGo.Insert(o)
 			}
 		}
 	} else {

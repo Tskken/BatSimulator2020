@@ -4,8 +4,11 @@ import (
 	"github.com/dhconnelly/rtreego"
 	"github.com/faiface/pixel"
 	"image"
-	"log"
 	"os"
+)
+
+var (
+	RectZV = pixel.R(0,0,0,0)
 )
 
 func LoadPicture(path string) (pixel.Picture, error) {
@@ -29,8 +32,6 @@ func LoadPicture(path string) (pixel.Picture, error) {
 }
 
 func ToRect(rct pixel.Rect) *rtreego.Rect {
-	log.Println(rct)
-	log.Println(rct.W(), rct.H())
 	rect, err := rtreego.NewRect(rtreego.Point{rct.Min.X, rct.Min.Y}, []float64{rct.W(), rct.H()})
 	if err != nil {
 		panic(err)

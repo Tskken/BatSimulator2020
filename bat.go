@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/dhconnelly/rtreego"
+	"github.com/Tskken/QuadGo"
 	"github.com/faiface/pixel"
 )
 
@@ -10,11 +10,10 @@ const (
 )
 
 type Bat struct {
-	Sprite   *pixel.Sprite
-	HitBox   pixel.Rect
-	Position pixel.Vec
-	Matrix   pixel.Matrix
-	Speed    float64
+	Sprite *pixel.Sprite
+	HitBox pixel.Rect
+	Matrix pixel.Matrix
+	Speed  float64
 }
 
 func NewBat(winCenter pixel.Vec) *Bat {
@@ -32,32 +31,19 @@ func NewBat(winCenter pixel.Vec) *Bat {
 				),
 			),
 		),
-		Position: winCenter,
-		Matrix:   pixel.IM.Scaled(pixel.ZV, BatScale).Moved(winCenter),
-		Speed:    500.0,
+		Matrix: pixel.IM.Scaled(pixel.ZV, BatScale).Moved(winCenter),
+		Speed:  500.0,
 	}
 }
 
-func CollisionCheck(rec pixel.Rect) bool {
-	treeObjects := RTree.NearestNeighbors(25, rtreego.Point{rec.Center().X, rec.Center().Y})
-	for _, t := range treeObjects {
-		if t.(*Object).Rect.Intersect(rec) != pixel.R(0, 0, 0, 0) {
-			return true
-		}
-	}
-	return false
+func (b *Bat) CollisionCheck(vec pixel.Vec) bool {
+	bounds := b.HitBox.Moved(vec)
+	return QGo.IsIntersect(QuadGo.NewBounds(bounds.Min.X, bounds.Min.Y, bounds.W(), bounds.H()))
 }
 
 func (b *Bat) Moved(vec pixel.Vec) {
-	newBox := b.HitBox.Moved(vec)
-	if CollisionCheck(newBox) {
-		return
-	}
-
 	b.Matrix = b.Matrix.Moved(vec)
-	b.Position = b.Position.Add(vec)
-	b.HitBox = newBox
-
+	b.HitBox = b.HitBox.Moved(vec)
 }
 
 func (b *Bat) Draw(target pixel.Target) {

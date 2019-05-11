@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"github.com/faiface/pixel"
-	"github.com/faiface/pixel/imdraw"
 	"github.com/faiface/pixel/pixelgl"
 	"golang.org/x/image/colornames"
 	_ "image/png"
@@ -38,16 +37,11 @@ type DeltaTime struct {
 	DT   float64
 }
 
-/*
-	TODO: Config setup
-		- Add load config from file support
-		- Streamline code and comment
-*/
 func NewGame() (*Game, error) {
 	cfg := pixelgl.WindowConfig{
 		Title:  "Bat Simulator 2020???...",
 		Bounds: pixel.R(0, 0, WindowWidth, WindowHeight),
-		VSync:  true,
+		VSync:  false,
 	}
 
 	win, err := pixelgl.NewWindow(cfg)
@@ -106,25 +100,25 @@ func (f *FPSTimer) FPSCounter(g *Game) {
 }
 
 func (g *Game) Draw() {
-	g.Camera.UpdateCamera(g.Bat.Position, g.DeltaTime.DT)
+	g.Camera.UpdateCamera(g.Bat.HitBox.Center(), g.DeltaTime.DT)
 	g.Window.SetMatrix(g.Camera.Matrix)
 
-	imd := imdraw.New(nil)
-	for _, obj := range g.World.Layers[1].Objects {
-		imd.Color = pixel.RGB(0, 1, 0)
-		imd.Push(obj.Rect.Min, obj.Rect.Max)
-		imd.Rectangle(0)
-	}
-
-	imd.Color = pixel.RGB(1, 0, 0)
-	imd.Push(g.Bat.HitBox.Min, g.Bat.HitBox.Max)
-	imd.Rectangle(0)
+	//imd := imdraw.New(nil)
+	//for _, obj := range g.World.Layers[1].Objects {
+	//	imd.Color = pixel.RGB(0, 1, 0)
+	//	imd.Push(obj.Rect.Min, obj.Rect.Max)
+	//	imd.Rectangle(0)
+	//}
+	//
+	//imd.Color = pixel.RGB(1, 0, 0)
+	//imd.Push(g.Bat.HitBox.Min, g.Bat.HitBox.Max)
+	//imd.Rectangle(0)
 
 	// Clear window
 	g.Window.Clear(colornames.Black)
 	g.World.Draw(g.Window)
 
-	imd.Draw(g.Window)
+	//imd.Draw(g.Window)
 
 	g.Bat.Draw(g.Window)
 

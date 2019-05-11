@@ -15,36 +15,44 @@ const (
 	Idle
 )
 
-/*
-	TODO: Update for future
-		- Add hit box detection
-*/
 func (g *Game) ActionHandler() {
-	v := pixel.V(0, 0)
+	v := pixel.ZV
 	var a Action
 	moved := false
 	if g.Window.Pressed(pixelgl.KeyW) {
-		v = v.Add(pixel.V(0, g.Bat.Speed*g.DeltaTime.DT))
-		a = Up
-		moved = true
+		tV := v.Add(pixel.V(0, g.Bat.Speed*g.DeltaTime.DT))
+		if !g.Bat.CollisionCheck(tV) {
+			v = tV
+			a = Up
+			moved = true
+		}
 	}
 
 	if g.Window.Pressed(pixelgl.KeyS) {
-		v = v.Sub(pixel.V(0, g.Bat.Speed*g.DeltaTime.DT))
-		a = Down
-		moved = true
+		tV := v.Sub(pixel.V(0, g.Bat.Speed*g.DeltaTime.DT))
+		if !g.Bat.CollisionCheck(tV) {
+			v = tV
+			a = Down
+			moved = true
+		}
 	}
 
 	if g.Window.Pressed(pixelgl.KeyD) {
-		v = v.Add(pixel.V(g.Bat.Speed*g.DeltaTime.DT, 0))
-		a = Right
-		moved = true
+		tV := v.Add(pixel.V(g.Bat.Speed*g.DeltaTime.DT, 0))
+		if !g.Bat.CollisionCheck(tV) {
+			v = tV
+			a = Right
+			moved = true
+		}
 	}
 
 	if g.Window.Pressed(pixelgl.KeyA) {
-		v = v.Sub(pixel.V(g.Bat.Speed*g.DeltaTime.DT, 0))
-		a = Left
-		moved = true
+		tV := v.Sub(pixel.V(g.Bat.Speed*g.DeltaTime.DT, 0))
+		if !g.Bat.CollisionCheck(tV) {
+			v = tV
+			a = Left
+			moved = true
+		}
 	}
 
 	if !moved {
