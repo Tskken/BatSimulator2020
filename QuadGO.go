@@ -6,4 +6,4 @@ const (
 	MaxEntities = 25
 )
 
-var QGo = QuadGo.NewQuadGo(MaxEntities, QuadGo.NewBounds(0,0,WindowWidth, WindowHeight))
+var QGo, _ = QuadGo.NewQuadGo(MaxEntities, WindowWidth, WindowHeight)

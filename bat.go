@@ -38,7 +38,7 @@ func NewBat(winCenter pixel.Vec) *Bat {
 
 func (b *Bat) CollisionCheck(vec pixel.Vec) bool {
 	bounds := b.HitBox.Moved(vec)
-	return QGo.IsIntersect(QuadGo.NewBounds(bounds.Min.X, bounds.Min.Y, bounds.W(), bounds.H()))
+	return QGo.IsIntersect(QuadGo.NewBounds(bounds.Min.X, bounds.Min.Y, bounds.Max.X, bounds.Max.Y))
 }
 
 func (b *Bat) Moved(vec pixel.Vec) {

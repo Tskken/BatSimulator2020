@@ -41,7 +41,7 @@ func NewGame() (*Game, error) {
 	cfg := pixelgl.WindowConfig{
 		Title:  "Bat Simulator 2020???...",
 		Bounds: pixel.R(0, 0, WindowWidth, WindowHeight),
-		VSync:  false,
+		VSync:  true,
 	}
 
 	win, err := pixelgl.NewWindow(cfg)

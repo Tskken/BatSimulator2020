@@ -3,7 +3,7 @@ module BatSimulator2020
 go 1.12
 
 require (
-	github.com/Tskken/QuadGo v0.0.0-20190510222345-3e995c79db08
+	github.com/Tskken/QuadGo v0.0.0-20190512110545-d0b5ff4f9aef
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dhconnelly/rtreego v0.0.0-20180422140909-3fb2815d35b2
 	github.com/faiface/glhf v0.0.0-20181018222622-82a6317ac380 // indirect

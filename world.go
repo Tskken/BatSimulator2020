@@ -4,6 +4,7 @@ import (
 	"BatSimulator2020/mapdecoder"
 	"encoding/hex"
 	"errors"
+	"github.com/Tskken/QuadGo"
 	"github.com/faiface/pixel"
 	"image/color"
 	"math"
@@ -55,7 +56,7 @@ func (w *World) NewLayer(m *mapdecoder.Map, index int) *Layer {
 			for i, obj := range m.Layers[index].Objects {
 				o := w.NewObject(obj)
 				l.Objects[i] = o
-				QGo.Insert(o)
+				QGo.Insert(QuadGo.NewBounds(o.Rect.Min.X, o.Rect.Min.Y, o.Rect.Max.X, o.Rect.Max.Y), o)
 			}
 		}
 	} else {
