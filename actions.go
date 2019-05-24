@@ -17,14 +17,13 @@ const (
 
 func (g *Game) ActionHandler() {
 	v := pixel.ZV
-	var a Action
-	moved := false
+	a := Idle
+
 	if g.Window.Pressed(pixelgl.KeyW) {
-		tV := v.Add(pixel.V(0, g.Bat.Speed*g.DeltaTime.DT))
-		if !g.Bat.CollisionCheck(tV) {
+		tV := pixel.ZV.Add(pixel.V(0, g.Bat.Speed*g.DeltaTime.DT))
+		if !g.Bat.CollisionCheck(v) {
 			v = tV
 			a = Up
-			moved = true
 		}
 	}
 
@@ -33,7 +32,6 @@ func (g *Game) ActionHandler() {
 		if !g.Bat.CollisionCheck(tV) {
 			v = tV
 			a = Down
-			moved = true
 		}
 	}
 
@@ -42,7 +40,6 @@ func (g *Game) ActionHandler() {
 		if !g.Bat.CollisionCheck(tV) {
 			v = tV
 			a = Right
-			moved = true
 		}
 	}
 
@@ -51,14 +48,9 @@ func (g *Game) ActionHandler() {
 		if !g.Bat.CollisionCheck(tV) {
 			v = tV
 			a = Left
-			moved = true
 		}
 	}
 
-	if !moved {
-		g.Animation.Update(Idle)
-	} else {
-		g.Bat.Moved(v)
-		g.Animation.Update(a)
-	}
+	g.Bat.Moved(v)
+	g.Animation.Update(a)
 }

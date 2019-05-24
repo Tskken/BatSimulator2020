@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/Tskken/QuadGo"
 	"github.com/faiface/pixel"
 )
 
@@ -21,13 +20,13 @@ func NewBat(winCenter pixel.Vec) *Bat {
 		HitBox: pixel.R(
 			0,
 			0,
-			SpriteWidth*Scale,
-			SpriteHeight*Scale,
+			(SpriteWidth/2)*Scale,
+			(SpriteHeight/2)*Scale,
 		).Moved(
 			winCenter.Sub(
 				pixel.V(
-					(SpriteWidth/2)*Scale,
-					(SpriteHeight/2)*Scale,
+					(SpriteWidth/4)*Scale,
+					(SpriteHeight/4)*Scale,
 				),
 			),
 		),
@@ -37,8 +36,7 @@ func NewBat(winCenter pixel.Vec) *Bat {
 }
 
 func (b *Bat) CollisionCheck(vec pixel.Vec) bool {
-	bounds := b.HitBox.Moved(vec)
-	return QGo.IsIntersect(QuadGo.NewBounds(bounds.Min.X, bounds.Min.Y, bounds.Max.X, bounds.Max.Y))
+	return QGo.IsIntersect(ToBounds(b.HitBox.Moved(vec)))
 }
 
 func (b *Bat) Moved(vec pixel.Vec) {

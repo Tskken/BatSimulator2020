@@ -1,15 +1,14 @@
 package main
 
 import (
-	"github.com/dhconnelly/rtreego"
 	"github.com/faiface/pixel"
 	"image"
 	"os"
 )
 
-var (
-	RectZV = pixel.R(0,0,0,0)
-)
+//var (
+//	RectZV = pixel.R(0,0,0,0)
+//)
 
 func LoadPicture(path string) (pixel.Picture, error) {
 	file, err := os.Open(path)
@@ -31,11 +30,11 @@ func LoadPicture(path string) (pixel.Picture, error) {
 	return pixel.PictureDataFromImage(img), nil
 }
 
-func ToRect(rct pixel.Rect) *rtreego.Rect {
-	rect, err := rtreego.NewRect(rtreego.Point{rct.Min.X, rct.Min.Y}, []float64{rct.W(), rct.H()})
-	if err != nil {
-		panic(err)
-	}
-
-	return rect
-}
+//func ToRect(rct pixel.Rect) *rtreego.Rect {
+//	rect, err := rtreego.NewRect(rtreego.Point{rct.Min.X, rct.Min.Y}, []float64{rct.W(), rct.H()})
+//	if err != nil {
+//		panic(err)
+//	}
+//
+//	return rect
+//}
