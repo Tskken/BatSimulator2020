@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"github.com/faiface/pixel"
-	"github.com/faiface/pixel/imdraw"
 	"github.com/faiface/pixel/pixelgl"
 	"golang.org/x/image/colornames"
 	_ "image/png"
@@ -15,27 +14,39 @@ const (
 	WindowHeight = 768
 )
 
+type State uint8
+
+const (
+	Running State = iota
+	Paused
+	Stoped
+)
+
+type Action uint8
+
+const (
+	Up Action = iota
+	Down
+	Left
+	Right
+	Idle
+)
+
 type Game struct {
 	Window *pixelgl.Window
 	Cfg    *pixelgl.WindowConfig
 
-	Bat       *Bat
-	Camera    *Camera
-	Animation *Animation
-	World     *World
+	Bat    *Bat
+	Camera *Camera
+	World  *World
 
-	FPSTimer  *FPSTimer
-	DeltaTime *DeltaTime
-}
+	State State
 
-type FPSTimer struct {
 	Frames   int
 	FPSTimer <-chan time.Time
-}
 
-type DeltaTime struct {
 	Last time.Time
-	DT   float64
+	DT   time.Duration
 }
 
 func NewGame() (*Game, error) {
@@ -58,76 +69,83 @@ func NewGame() (*Game, error) {
 			Position: win.Bounds().Center(),
 			Bounds:   win.Bounds(),
 		},
-		Animation: NewAnimation(),
-		World:     LoadMap(),
-		FPSTimer: &FPSTimer{
-			Frames:   0,
-			FPSTimer: time.Tick(time.Second),
-		},
-		DeltaTime: &DeltaTime{
-			Last: time.Now(),
-		},
+		World:    NewWorld(),
+		State:    Running,
+		Frames:   0,
+		FPSTimer: time.Tick(time.Second),
+		Last:     time.Now(),
 	}, nil
 }
 
 func (g *Game) MainGameLoop() {
 	for !g.Window.Closed() {
-		g.DeltaTime.UpdateDT()
+		g.DT = time.Since(g.Last)
+		g.Last = time.Now()
 
-		// Handle possible actions
-		g.ActionHandler()
-
-		// Animation update counter
-		if time.Since(g.Animation.AnimationTimer) >= AnimationTime || g.Bat.Sprite == nil {
-			g.Bat.Sprite = g.Animation.SpriteMap[g.Animation.Action][g.Animation.Index]
-			g.Animation.AnimationTimer = time.Now()
+		if g.State == Running {
+			g.Update()
 		}
 
 		g.Draw()
 
-		g.FPSTimer.FPSCounter(g)
+		// Get FPS counter
+		select {
+		case <-g.FPSTimer:
+			g.Window.SetTitle(fmt.Sprintf("%s | FPS: %d", g.Cfg.Title, g.Frames))
+			g.Frames = 0
+		default:
+			g.Frames++
+		}
 	}
 }
 
-func (f *FPSTimer) FPSCounter(g *Game) {
-	// Get FPS counter
-	select {
-	case <-f.FPSTimer:
-		g.Window.SetTitle(fmt.Sprintf("%s | FPS: %d", g.Cfg.Title, f.Frames))
-		f.Frames = 0
-	default:
-		f.Frames++
+func (g *Game) Update() {
+	// Handle possible actions
+	vec := pixel.ZV
+	act := Idle
+
+	if g.Window.Pressed(pixelgl.KeyW) {
+		v := pixel.ZV.Add(pixel.V(0, g.Bat.Speed*g.DT.Seconds()))
+		if !g.Bat.CollisionCheck(v) {
+			vec = vec.Add(v)
+			act = Up
+		}
+	} else if g.Window.Pressed(pixelgl.KeyS) {
+		v := pixel.ZV.Sub(pixel.V(0, g.Bat.Speed*g.DT.Seconds()))
+		if !g.Bat.CollisionCheck(v) {
+			vec = vec.Add(v)
+			act = Down
+		}
 	}
+
+	if g.Window.Pressed(pixelgl.KeyA) {
+		v := pixel.ZV.Sub(pixel.V(g.Bat.Speed*g.DT.Seconds(), 0))
+		if !g.Bat.CollisionCheck(v) {
+			vec = vec.Add(v)
+			act = Left
+		}
+	} else if g.Window.Pressed(pixelgl.KeyD) {
+		v := pixel.ZV.Add(pixel.V(g.Bat.Speed*g.DT.Seconds(), 0))
+		if !g.Bat.CollisionCheck(v) {
+			vec = vec.Add(v)
+			act = Right
+		}
+	}
+
+	g.Bat.Update(vec, act, g.DT)
 }
 
 func (g *Game) Draw() {
-	g.Camera.UpdateCamera(g.Bat.HitBox.Center(), g.DeltaTime.DT)
+	g.Camera.UpdateCamera(g.Bat.HitBox.Center(), g.DT.Seconds())
 	g.Window.SetMatrix(g.Camera.Matrix)
-
-	imd := imdraw.New(nil)
-	for _, obj := range g.World.Layers[1].Objects {
-		imd.Color = pixel.RGB(0, 1, 0)
-		imd.Push(obj.Rect.Min, obj.Rect.Max)
-		imd.Rectangle(0)
-	}
-
-	imd.Color = pixel.RGB(1, 0, 0)
-	imd.Push(g.Bat.HitBox.Min, g.Bat.HitBox.Max)
-	imd.Rectangle(0)
 
 	// Clear window
 	g.Window.Clear(colornames.Black)
-	g.World.Draw(g.Window)
 
-	imd.Draw(g.Window)
+	g.World.Draw(g.Window)
 
 	g.Bat.Draw(g.Window)
 
 	// Update window
 	g.Window.Update()
-}
-
-func (d *DeltaTime) UpdateDT() {
-	d.DT = time.Since(d.Last).Seconds()
-	d.Last = time.Now()
 }

@@ -7,21 +7,20 @@ import (
 )
 
 type Object struct {
-	Vec    pixel.Vec
 	Rect   pixel.Rect
-	Sprite *pixel.Sprite
+	Sprite *Sprite
 	Action func()
 }
 
-func (w *World) NewObject(obj *mapdecoder.Object) *Object {
+func NewObject(obj *mapdecoder.Object, m *mapdecoder.Map) *Object {
 	rec := pixel.R(obj.X*WorldScale, (-obj.Y-obj.Height)*WorldScale, (obj.X+obj.Width)*WorldScale, -obj.Y*WorldScale)
-	rec = rec.Moved(pixel.V(-TileSize, float64(w.Height)*TileSize*WorldScale-TileSize))
+	rec = rec.Moved(pixel.V(-TileSize, float64(m.Height)*TileSize*WorldScale-TileSize))
 	return &Object{
-		Vec:  rec.Min,
+		//Vec:  rec.Min,
 		Rect: rec,
 	}
 }
 
 func (o *Object) String() string {
-	return fmt.Sprintf("Vec{%v}, Rect{%v}", o.Vec, o.Rect)
+	return fmt.Sprintf("Rect{%v}", o.Rect)
 }
