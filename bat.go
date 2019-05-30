@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	AnimationThreshold = time.Second / 9
+	AnimationThreshold = time.Second / 6
 	BatScale           = 2
 	BatSpeed           = 500.0
 )

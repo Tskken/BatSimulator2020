@@ -1,4 +1,4 @@
-package mapdecoder
+package tileddecoder
 
 import (
 	"encoding/json"

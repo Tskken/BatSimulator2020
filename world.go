@@ -1,7 +1,7 @@
 package main
 
 import (
-	"BatSimulator2020/mapdecoder"
+	"BatSimulator2020/tileddecoder"
 	"github.com/Tskken/QuadGo"
 	"github.com/faiface/pixel"
 	"image/color"
@@ -46,7 +46,7 @@ type Layer struct {
 	Batch   *pixel.Batch
 }
 
-func NewLayer(m *mapdecoder.Map, index int) *Layer {
+func NewLayer(m *tileddecoder.Map, index int) *Layer {
 	l := &Layer{
 		Type:    m.Layers[index].Type,
 		Name:    m.Layers[index].Name,

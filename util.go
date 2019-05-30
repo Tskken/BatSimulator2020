@@ -1,7 +1,7 @@
 package main
 
 import (
-	"BatSimulator2020/mapdecoder"
+	"BatSimulator2020/tileddecoder"
 	"encoding/hex"
 	"errors"
 	"github.com/faiface/pixel"
@@ -88,7 +88,7 @@ func TileRotation(gid uint) (uint, pixel.Matrix) {
 	return gid, matrix
 }
 
-func LoadSpiteMap(m *mapdecoder.Map) ([]*pixel.Sprite, pixel.Picture) {
+func LoadSpiteMap(m *tileddecoder.Map) ([]*pixel.Sprite, pixel.Picture) {
 	spritesheet, err := LoadPicture(m.TileSets[0].Image)
 	if err != nil {
 		panic(err)
@@ -106,7 +106,7 @@ func LoadSpiteMap(m *mapdecoder.Map) ([]*pixel.Sprite, pixel.Picture) {
 	return sprites, spritesheet
 }
 
-func GetDecodedMap() *mapdecoder.Map {
+func GetDecodedMap() *tileddecoder.Map {
 	mapConfigPath, err := filepath.Abs("./assets/maps/cave_map_v1.json")
 	if err != nil {
 		panic(err)
@@ -117,7 +117,7 @@ func GetDecodedMap() *mapdecoder.Map {
 		panic(err)
 	}
 
-	m, err := mapdecoder.LoadMap(tileSetRootPath, mapConfigPath)
+	m, err := tileddecoder.LoadMap(tileSetRootPath, mapConfigPath)
 	if err != nil {
 		panic(err)
 	}
@@ -125,7 +125,7 @@ func GetDecodedMap() *mapdecoder.Map {
 	return m
 }
 
-func GenerateMap(tileIds []uint, tileSprites []*pixel.Sprite, m *mapdecoder.Map) (mapSprites []*Sprite) {
+func GenerateMap(tileIds []uint, tileSprites []*pixel.Sprite, m *tileddecoder.Map) (mapSprites []*Sprite) {
 	mapSprites = make([]*Sprite, 0, m.Height*m.Width)
 
 	var tileIndex uint = 0

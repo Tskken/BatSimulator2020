@@ -1,7 +1,7 @@
 package main
 
 import (
-	"BatSimulator2020/mapdecoder"
+	"BatSimulator2020/tileddecoder"
 	"fmt"
 	"github.com/faiface/pixel"
 )
@@ -12,7 +12,7 @@ type Object struct {
 	Action func()
 }
 
-func NewObject(obj *mapdecoder.Object, m *mapdecoder.Map) *Object {
+func NewObject(obj *tileddecoder.Object, m *tileddecoder.Map) *Object {
 	rec := pixel.R(obj.X*WorldScale, (-obj.Y-obj.Height)*WorldScale, (obj.X+obj.Width)*WorldScale, -obj.Y*WorldScale)
 	rec = rec.Moved(pixel.V(-TileSize, float64(m.Height)*TileSize*WorldScale-TileSize))
 	return &Object{

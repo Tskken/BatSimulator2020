@@ -19,7 +19,7 @@ type State uint8
 const (
 	Running State = iota
 	Paused
-	Stoped
+	Stopped
 )
 
 type Action uint8
@@ -50,9 +50,13 @@ type Game struct {
 }
 
 func NewGame() (*Game, error) {
+	//w, h := pixelgl.PrimaryMonitor().Size()
+
 	cfg := pixelgl.WindowConfig{
 		Title:  "Bat Simulator 2020???...",
 		Bounds: pixel.R(0, 0, WindowWidth, WindowHeight),
+		//Undecorated:true,
+		Resizable:true,
 		VSync:  true,
 	}
 
@@ -82,9 +86,7 @@ func (g *Game) MainGameLoop() {
 		g.DT = time.Since(g.Last)
 		g.Last = time.Now()
 
-		if g.State == Running {
-			g.Update()
-		}
+		g.Update()
 
 		g.Draw()
 
@@ -99,40 +101,62 @@ func (g *Game) MainGameLoop() {
 	}
 }
 
-func (g *Game) Update() {
-	// Handle possible actions
+func (g *Game) HandleInputs() (pixel.Vec, Action) {
+	if g.Window.JustPressed(pixelgl.KeyP) {
+		if g.State == Paused {
+			g.State = Running
+		} else {
+			g.State = Paused
+		}
+	}
+
+	if g.Window.JustPressed(pixelgl.KeyEscape) {
+		g.Window.SetClosed(true)
+	}
+
 	vec := pixel.ZV
 	act := Idle
 
-	if g.Window.Pressed(pixelgl.KeyW) {
-		v := pixel.ZV.Add(pixel.V(0, g.Bat.Speed*g.DT.Seconds()))
-		if !g.Bat.CollisionCheck(v) {
-			vec = vec.Add(v)
-			act = Up
+	if g.State != Paused {
+		if g.Window.Pressed(pixelgl.KeyW) {
+			v := pixel.ZV.Add(pixel.V(0, g.Bat.Speed*g.DT.Seconds()))
+			if !g.Bat.CollisionCheck(v) {
+				vec = vec.Add(v)
+				act = Up
+			}
+		} else if g.Window.Pressed(pixelgl.KeyS) {
+			v := pixel.ZV.Sub(pixel.V(0, g.Bat.Speed*g.DT.Seconds()))
+			if !g.Bat.CollisionCheck(v) {
+				vec = vec.Add(v)
+				act = Down
+			}
 		}
-	} else if g.Window.Pressed(pixelgl.KeyS) {
-		v := pixel.ZV.Sub(pixel.V(0, g.Bat.Speed*g.DT.Seconds()))
-		if !g.Bat.CollisionCheck(v) {
-			vec = vec.Add(v)
-			act = Down
+
+		if g.Window.Pressed(pixelgl.KeyA) {
+			v := pixel.ZV.Sub(pixel.V(g.Bat.Speed*g.DT.Seconds(), 0))
+			if !g.Bat.CollisionCheck(v) {
+				vec = vec.Add(v)
+				act = Left
+			}
+		} else if g.Window.Pressed(pixelgl.KeyD) {
+			v := pixel.ZV.Add(pixel.V(g.Bat.Speed*g.DT.Seconds(), 0))
+			if !g.Bat.CollisionCheck(v) {
+				vec = vec.Add(v)
+				act = Right
+			}
 		}
 	}
 
-	if g.Window.Pressed(pixelgl.KeyA) {
-		v := pixel.ZV.Sub(pixel.V(g.Bat.Speed*g.DT.Seconds(), 0))
-		if !g.Bat.CollisionCheck(v) {
-			vec = vec.Add(v)
-			act = Left
-		}
-	} else if g.Window.Pressed(pixelgl.KeyD) {
-		v := pixel.ZV.Add(pixel.V(g.Bat.Speed*g.DT.Seconds(), 0))
-		if !g.Bat.CollisionCheck(v) {
-			vec = vec.Add(v)
-			act = Right
-		}
-	}
+	return vec, act
+}
 
-	g.Bat.Update(vec, act, g.DT)
+func (g *Game) Update() {
+
+	vec, act := g.HandleInputs()
+
+	if g.State != Paused {
+		g.Bat.Update(vec, act, g.DT)
+	}
 }
 
 func (g *Game) Draw() {
