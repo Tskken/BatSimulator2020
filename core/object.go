@@ -1,9 +1,13 @@
-package main
+package core
 
 import (
 	"BatSimulator2020/tileddecoder"
 	"fmt"
 	"github.com/faiface/pixel"
+)
+
+const (
+	TileSize = 16
 )
 
 type Object struct {
@@ -13,8 +17,8 @@ type Object struct {
 }
 
 func NewObject(obj *tileddecoder.Object, m *tileddecoder.Map) *Object {
-	rec := pixel.R(obj.X*WorldScale, (-obj.Y-obj.Height)*WorldScale, (obj.X+obj.Width)*WorldScale, -obj.Y*WorldScale)
-	rec = rec.Moved(pixel.V(-TileSize, float64(m.Height)*TileSize*WorldScale-TileSize))
+	rec := pixel.R(obj.X*GlobalConfig.WorldScale, (-obj.Y-obj.Height)*GlobalConfig.WorldScale, (obj.X+obj.Width)*GlobalConfig.WorldScale, -obj.Y*GlobalConfig.WorldScale)
+	rec = rec.Moved(pixel.V(-TileSize, float64(m.Height)*TileSize*GlobalConfig.WorldScale-TileSize))
 	return &Object{
 		//Vec:  rec.Min,
 		Rect: rec,

@@ -1,11 +1,12 @@
 package main
 
 import (
+	"BatSimulator2020/core"
 	"github.com/faiface/pixel/pixelgl"
 )
 
 func run() {
-	g, err := NewGame()
+	g, err := core.NewGame()
 	if err != nil {
 		panic(err)
 	}

@@ -1,15 +1,10 @@
-package main
+package core
 
 import (
 	"BatSimulator2020/tileddecoder"
 	"github.com/Tskken/QuadGo"
 	"github.com/faiface/pixel"
 	"image/color"
-)
-
-const (
-	TileSize   = 16
-	WorldScale = 2.5
 )
 
 type World struct {

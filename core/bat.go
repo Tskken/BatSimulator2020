@@ -1,4 +1,4 @@
-package main
+package core
 
 import (
 	"github.com/faiface/pixel"
@@ -6,16 +6,9 @@ import (
 	"time"
 )
 
-const (
-	AnimationThreshold = time.Second / 6
-	BatScale           = 2
-	BatSpeed           = 500.0
-)
-
 type Bat struct {
-	Sprite Sprite
+	Sprite *Sprite
 	HitBox pixel.Rect
-	Speed  float64
 
 	State      Action
 	FrameIndex float64
@@ -25,9 +18,9 @@ type Bat struct {
 
 func NewBat(winCenter pixel.Vec) *Bat {
 	return &Bat{
-		Sprite: Sprite{
+		Sprite: &Sprite{
 			Sprite: EntitySprites.BatSprites[Idle][0],
-			Matrix: pixel.IM.Scaled(pixel.ZV, BatScale).Moved(winCenter),
+			Matrix: pixel.IM.Scaled(pixel.ZV, GlobalConfig.BatScale).Moved(winCenter),
 		},
 		HitBox: pixel.R(
 			0,
@@ -42,7 +35,6 @@ func NewBat(winCenter pixel.Vec) *Bat {
 				),
 			),
 		),
-		Speed: BatSpeed,
 	}
 }
 
@@ -55,7 +47,7 @@ func (b *Bat) Update(vec pixel.Vec, action Action, dt time.Duration) {
 
 	b.State = action
 
-	i := int(math.Floor(b.FrameIndex / AnimationThreshold.Seconds()))
+	i := int(math.Floor(b.FrameIndex / GlobalConfig.BatAnimationRate.Seconds()))
 	sprite := EntitySprites.BatSprites[b.State][i%len(EntitySprites.BatSprites[b.State])]
 
 	b.Sprite.Update(sprite, vec)

@@ -1,4 +1,4 @@
-package main
+package core
 
 import (
 	"github.com/faiface/pixel"
@@ -32,8 +32,8 @@ func loadBatSprites() map[Action][]*pixel.Sprite {
 	var sprites []*pixel.Sprite
 
 	// Save sprites from sprite sheet to array
-	for y := spritesheet.Bounds().Max.Y; y > spritesheet.Bounds().Min.Y; y-= SpriteHeight {
-		for x := spritesheet.Bounds().Min.X; x < spritesheet.Bounds().Max.X; x+=SpriteWidth {
+	for y := spritesheet.Bounds().Max.Y; y > spritesheet.Bounds().Min.Y; y -= SpriteHeight {
+		for x := spritesheet.Bounds().Min.X; x < spritesheet.Bounds().Max.X; x += SpriteWidth {
 			sprites = append(sprites, pixel.NewSprite(spritesheet, pixel.R(x, y, x+SpriteWidth, y-SpriteHeight)))
 		}
 	}

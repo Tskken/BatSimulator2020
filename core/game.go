@@ -1,4 +1,4 @@
-package main
+package core
 
 import (
 	"fmt"
@@ -7,11 +7,6 @@ import (
 	"golang.org/x/image/colornames"
 	_ "image/png"
 	"time"
-)
-
-const (
-	WindowWidth  = 1024
-	WindowHeight = 768
 )
 
 type State uint8
@@ -34,7 +29,6 @@ const (
 
 type Game struct {
 	Window *pixelgl.Window
-	Cfg    *pixelgl.WindowConfig
 
 	Bat    *Bat
 	Camera *Camera
@@ -50,14 +44,16 @@ type Game struct {
 }
 
 func NewGame() (*Game, error) {
-	//w, h := pixelgl.PrimaryMonitor().Size()
+	LoadConfigs()
+
+	LoadQuadGo()
 
 	cfg := pixelgl.WindowConfig{
 		Title:  "Bat Simulator 2020???...",
-		Bounds: pixel.R(0, 0, WindowWidth, WindowHeight),
-		//Undecorated:true,
-		Resizable:true,
-		VSync:  true,
+		Bounds: pixel.R(0, 0, GlobalConfig.WindowWidth, GlobalConfig.WindowHeight),
+		Undecorated:GlobalConfig.Undecorated,
+		Resizable:GlobalConfig.Resizable,
+		VSync: GlobalConfig.VSync,
 	}
 
 	win, err := pixelgl.NewWindow(cfg)
@@ -67,7 +63,6 @@ func NewGame() (*Game, error) {
 
 	return &Game{
 		Window: win,
-		Cfg:    &cfg,
 		Bat:    NewBat(win.Bounds().Center()),
 		Camera: &Camera{
 			Position: win.Bounds().Center(),
@@ -93,7 +88,7 @@ func (g *Game) MainGameLoop() {
 		// Get FPS counter
 		select {
 		case <-g.FPSTimer:
-			g.Window.SetTitle(fmt.Sprintf("%s | FPS: %d", g.Cfg.Title, g.Frames))
+			g.Window.SetTitle(fmt.Sprintf("%s | FPS: %d", GlobalConfig.Title, g.Frames))
 			g.Frames = 0
 		default:
 			g.Frames++
@@ -110,6 +105,10 @@ func (g *Game) HandleInputs() (pixel.Vec, Action) {
 		}
 	}
 
+	if g.Window.JustPressed(pixelgl.KeyEqual) {
+		SaveToConfig()
+	}
+
 	if g.Window.JustPressed(pixelgl.KeyEscape) {
 		g.Window.SetClosed(true)
 	}
@@ -119,13 +118,13 @@ func (g *Game) HandleInputs() (pixel.Vec, Action) {
 
 	if g.State != Paused {
 		if g.Window.Pressed(pixelgl.KeyW) {
-			v := pixel.ZV.Add(pixel.V(0, g.Bat.Speed*g.DT.Seconds()))
+			v := pixel.ZV.Add(pixel.V(0, GlobalConfig.BatSpeed*g.DT.Seconds()))
 			if !g.Bat.CollisionCheck(v) {
 				vec = vec.Add(v)
 				act = Up
 			}
 		} else if g.Window.Pressed(pixelgl.KeyS) {
-			v := pixel.ZV.Sub(pixel.V(0, g.Bat.Speed*g.DT.Seconds()))
+			v := pixel.ZV.Sub(pixel.V(0, GlobalConfig.BatSpeed*g.DT.Seconds()))
 			if !g.Bat.CollisionCheck(v) {
 				vec = vec.Add(v)
 				act = Down
@@ -133,13 +132,13 @@ func (g *Game) HandleInputs() (pixel.Vec, Action) {
 		}
 
 		if g.Window.Pressed(pixelgl.KeyA) {
-			v := pixel.ZV.Sub(pixel.V(g.Bat.Speed*g.DT.Seconds(), 0))
+			v := pixel.ZV.Sub(pixel.V(GlobalConfig.BatSpeed*g.DT.Seconds(), 0))
 			if !g.Bat.CollisionCheck(v) {
 				vec = vec.Add(v)
 				act = Left
 			}
 		} else if g.Window.Pressed(pixelgl.KeyD) {
-			v := pixel.ZV.Add(pixel.V(g.Bat.Speed*g.DT.Seconds(), 0))
+			v := pixel.ZV.Add(pixel.V(GlobalConfig.BatSpeed*g.DT.Seconds(), 0))
 			if !g.Bat.CollisionCheck(v) {
 				vec = vec.Add(v)
 				act = Right

@@ -1,4 +1,4 @@
-package main
+package core
 
 import (
 	"BatSimulator2020/tileddecoder"
@@ -140,7 +140,7 @@ func GenerateMap(tileIds []uint, tileSprites []*pixel.Sprite, m *tileddecoder.Ma
 				if uint(tileset.FirstGId) <= gid {
 					mapSprites = append(mapSprites, &Sprite{
 						Sprite:  tileSprites[gid-uint(m.TileSets[i].FirstGId)],
-						Matrix:  matrix.Scaled(pixel.ZV, WorldScale).Moved(pixel.V(float64(x)*TileSize*WorldScale, float64(y)*TileSize*WorldScale)),
+						Matrix:  matrix.Scaled(pixel.ZV, GlobalConfig.WorldScale).Moved(pixel.V(float64(x)*TileSize*GlobalConfig.WorldScale, float64(y)*TileSize*GlobalConfig.WorldScale)),
 						Visible: true,
 					})
 					break

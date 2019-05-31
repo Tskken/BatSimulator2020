@@ -1,4 +1,4 @@
-package main
+package core
 
 import (
 	"github.com/Tskken/QuadGo"
@@ -9,7 +9,11 @@ const (
 	MaxEntities = 25
 )
 
-var QGo, _ = QuadGo.NewQuadGo(MaxEntities, WindowWidth, WindowHeight)
+var QGo *QuadGo.QuadGo
+
+func LoadQuadGo() {
+	QGo, _ = QuadGo.NewQuadGo(MaxEntities, GlobalConfig.WindowWidth, GlobalConfig.WindowHeight)
+}
 
 func ToBounds(bounds pixel.Rect) QuadGo.Bounds {
 	return QuadGo.NewBounds(bounds.Min.X, bounds.Min.Y, bounds.Max.X, bounds.Max.Y)
